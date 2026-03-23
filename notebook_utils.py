@@ -37,3 +37,5 @@ def block_mean_tensor_vectorized(tensor, c):
     result = expanded_means.permute(0, 1, 2, 4, 3, 5).contiguous().view(B, 1, n, n)
 
     return result
+
+
