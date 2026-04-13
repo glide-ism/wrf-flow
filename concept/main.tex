@@ -33,7 +33,6 @@ Mountain precipitation is a critical input for climate adaptation planning, wate
 
 We develop WRF-Flow, a conditional generative model that learns to map coarse-resolution climate model output and high-resolution topographic information to ensembles of plausible high-resolution precipitation fields. WRF-Flow uses Conditional flow matching (CFM), a framework for training generative models by learning velocity fields that interpolate between noise and data distributions. Unlike diffusion models, which reverse a fixed Markovian noise schedule, flow matching constructs probability paths via optimal transport, enabling more efficient training and faster sampling.  By training a neural network velocity field via conditional flow matching, we enable rapid generation of probabilistic ensembles of downscaled precipitation in seconds rather than months, thereby enabling uncertainty quantification for climate adaptation at computationally tractable cost.  
 
-
 \section{Proof of Concept}
 
 \begin{figure}
@@ -41,13 +40,12 @@ We develop WRF-Flow, a conditional generative model that learns to map coarse-re
 
 	\includegraphics[width=\textwidth]{figures/basemap.png}
 
-\caption{Reference map showing regions in Alaska where WRF-Flow was applied.}
+	\caption{Reference map showing regions in Alaska where WRF-Flow was applied.  Tiles correspond to columns in Fig.~\ref{fig2}.}
 
 \label{fig1}
 
 \end{figure}
-%(Figure~\ref{refmap}).
-To demonstrate its efficacy, we applied WRF-Flow to an area covering the  St. Elias and Chugach mountain ranges in southeastern Alaska.  Beginning with WRF simulation outputs at 4 km horizontal resolution, we coarsened the out-of-sample data to simulate 64 km resolution climate model output, and paritioned the temporal domain into 120 time steps for training and 30+ independent time steps for evaluation.  We then used WRF-Flow to recreate, as best as possible, the original 4 km data in an evaluation timestep.  The dataset comprises maximum 3-day snowfall accumulations from multiple atmospheric forcings: CFSR reanalysis (1981–2010) for the historical baseline and GFDL CM3 and CCSM4 climate models (2031–2060) for future projections.  Initial results, which took only seconds to generate on a laptop computer, are shown in Figure~\ref{fig1}.
+To demonstrate its efficacy, we applied WRF-Flow to an area covering the  St. Elias and Chugach mountain ranges in southeastern Alaska.  Beginning with WRF simulation outputs at 4 km horizontal resolution, we coarsened the out-of-sample data to simulate 64 km resolution climate model output, and partitioned the temporal domain into 120 time steps for training and 30+ independent time steps for evaluation.  We then used standard flow matching \ref{Sec:appendix} to create a generative model of these high-resolution outputs conditioned on topography and low-resolution climate.  The dataset comprises maximum 3-day snowfall accumulations from multiple atmospheric forcings: CFSR reanalysis (1981–2010) for the historical baseline and GFDL CM3 and CCSM4 climate models (2031–2060) for future projections.  Initial results, which took only seconds to generate on a laptop computer, are shown in Figure~\ref{fig1}.
 
 \begin{figure}
 \centering
@@ -66,17 +64,29 @@ To demonstrate its efficacy, we applied WRF-Flow to an area covering the  St. El
 \begin{figure}
 \centering
 
-\includegraphics[width=\textwidth]{figures/summary_statistics.png}
+\includegraphics[width=\textwidth]{figures/spatial_coherence.png}
 
-\caption{Uncertainty quantification for the St. Elias mountain range, centered on Malaspina Glacier.   Deviations from the mean exhibit strong spatial coherence relative to topography, and orographic effects are clearly visible.}
+	\caption{Samples drawn from WRF-flow with ensemble mean removed, centered on Malaspina Glacier (a--c) alongside the low-resolution forcing and ensemble mean.  Deviations from the mean are correlated in space in a way that is consistent with topographic effects such as rain-shadowing and orographic enhancement. }
 
 \label{fig3}
 
 \end{figure}
 
-By generating multiple independent realizations with different noise samples, we obtain an ensemble that characterizes the conditional probability distribution over the downscaling problem (Figure~\ref{fig2}). The spatial pattern of ensemble spread provides diagnostic information about which regions have high predictability (low spread) and which regions have intrinsic unpredictability relative to the coarse forcing (high spread).
+By generating multiple independent realizations with different noise samples, we obtain an ensemble that characterizes the conditional probability distribution over the downscaling problem (Figure~\ref{fig3}). The spatial pattern of ensemble spread provides diagnostic information about which regions have high predictability (low spread) and which regions have intrinsic unpredictability relative to the coarse forcing (high spread).
 
-A key advantage of the generative approach is the ability to draw multiple independent samples from the learned conditional distribution. By sampling different realizations of the noise and integrating the learned velocity field with the same conditioning information, we generate an ensemble of precipitation realizations consistent with both the coarse climate forcing and the high-resolution topography.
+\begin{figure}
+\centering
+
+\includegraphics[width=\textwidth]{figures/summary_statistics.png}
+
+\caption{Uncertainty quantification for the St. Elias mountain range as quantified by sample standard deviation, centered on Malaspina Glacier.}
+
+\label{fig4}
+
+\end{figure}
+
+
+By sampling different realizations of the noise and integrating the learned velocity field with the same conditioning information, we generate an ensemble of precipitation realizations consistent with both the coarse climate forcing and the high-resolution topography that can also be characterized by their summary statistics \ref{fig4}, which show an expected pattern - regions of extreme topography and precipitation have greater uncertainty than lower, more predicable regions.
 
 \section{Evaluation 1: Spatial Forecast Skill}
 
@@ -85,13 +95,13 @@ A key advantage of the generative approach is the ability to draw multiple indep
 
 \includegraphics[width=\textwidth]{figures/crps.png}
 
-\caption{Overlays on hillshade-enhanced topography highlight the spatial coherence of predicted patterns relative to topographic forcing.}
+\caption{CRPS computed with WRF flow and the lapse-rate corrected bicubic baseline method over 5 random tiles drawn from the test set, alongside the WRF ground truth, ensemble mean, and baseline mean.  Fields are overlaid on high-resolution topography.  WRF-Flow exhibits much stronger performance than the baseline, particularly over high-relief regions.}
 
-\label{fig4}
+\label{fig5}
 
 \end{figure}
 
-To evaluate WRF-Flow, we compare it to the baseline bicubic lapse rate method, in which coarse climate data are refined via lapse rate correction.  We used Continuous Ranked Probability Score (CPRS) to evaluate each of the two methods against the original WRF output.  CPRS is a proper scoring rule that measures the calibration of probabilistic predictions, penalizing both forecast bias and overconfidence while balancing distance to the observation (reliability) against ensemble spread (resolution). A lower CRPS score indicates better forecast skill.  Results (Figure~\ref{fig3}) show that WRF-Flow dramatically improves accurate placement of precipitation in Southeast Alaska, where orographic precipitation effects are important.
+To evaluate WRF-Flow, we compare it to the baseline bicubic lapse rate method, in which coarse climate data are refined via lapse rate correction.  We used Continuous Ranked Probability Score (CPRS) to evaluate each of the two methods against the original WRF output.  CPRS is a proper scoring rule that measures the calibration of probabilistic predictions, penalizing both forecast bias and overconfidence while balancing distance to the observation (reliability) against ensemble spread (resolution). A lower CRPS score indicates better forecast skill.  Results (Figure~\ref{fig5}) show that WRF-Flow dramatically improves accurate placement of precipitation in Southeast Alaska, where orographic precipitation effects are important.
 
 
 \section{Evaluation 2: Power Spectral Density and Spatial Structure Fidelity}
@@ -103,7 +113,7 @@ To evaluate WRF-Flow, we compare it to the baseline bicubic lapse rate method, i
 
 \caption{Log-log plot of Power Spectral Density for WRF-Flow and the baseline bicubic algorithm.  WRF-Flow shows a marked improvement over the baseline, with a little more challenge at high frequences.  This is consistent with most generative models, which tend to have an easier time learning smooth features.}
 
-\label{fig5}
+\label{fig6}
 
 \end{figure}
 
@@ -111,7 +121,7 @@ To evaluate WRF-Flow, we compare it to the baseline bicubic lapse rate method, i
 
 While CRPS assesses point-wise forecast calibration, the spatial structure of downscaled precipitation is equally important for applications in hydrology and hazard assessment. We evaluate spatial structure fidelity via the radially-averaged two-dimensional power spectral density (PSD), which decomposes variance as a function of spatial wavelength.
         
-We plot the power spectral density (PSD) a log-log plot, revealing the scale-dependent variance cascade (Figure~\ref{fig4}). Precipitation fields that are over-smoothed exhibit a deficit of power at small scales (short wavelengths $\lambda < 8$ km), while fields with spurious noise show a spectral excess. The WRF-Flow ensemble span (one standard deviation across 50 members) reveals the uncertainty inherent in the probabilistic prediction at each scale—narrow bands indicate confident predictions, while wide bands indicate high model uncertainty.  
+We plot the power spectral density (PSD) a log-log plot, revealing the scale-dependent variance cascade (Figure~\ref{fig6}). Precipitation fields that are over-smoothed exhibit a deficit of power at small scales (short wavelengths $\lambda < 8$ km), while fields with spurious noise show a spectral excess. The WRF-Flow ensemble span (one standard deviation across 50 members) reveals the uncertainty inherent in the probabilistic prediction at each scale—narrow bands indicate confident predictions, while wide bands indicate high model uncertainty.  
 
 
 \begin{figure}
@@ -144,6 +154,8 @@ We also evaluate the PSD via two metrics, \emph{mean absolute log spectral error
 We have applied conditional flow matching to emulating the annual maximum 3-day snowfall rates in the mountains of coastal Alaska as predicted by WRF, conditioned on high resolution topography and the low-resolution climate forcing similar to that produced by many CMIP-class climate models. We call this model WRF-Flow. We find that WRF-Flow does a qualitatively good job of reproducing high-resolution simulations. The distribution over its predictions is spatially coherent, with deviations from the ensemble mean governed by topography and physically-plausible effects like rain shadowing that are evident in the training data. Under quantitative metrics like CRPS and various norms of power-spectral density, WRF-Flow improves significantly over a simple regression-based baseline. Notably WRF-Flow produces spectral consistency with WRF, albeit while exhibiting similar low-frequency biases evident in many generative models. Based on this evidence and previous work on generative modelling of ML-based downscaling of weather models that conditional flow matching has the potential to be an effective surrogate for a more complete representation of WRF predictions.
 
 \section{Appendix: Method Details}
+
+\label{Sec:appendix}
 
 Conditional flow matching (CFM) is a framework for training generative models by learning velocity fields that interpolate between noise and data distributions. Unlike diffusion models, which reverse a fixed Markovian noise schedule, flow matching constructs probability paths via optimal transport, enabling more efficient training and faster sampling.
 
