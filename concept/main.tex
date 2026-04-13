@@ -39,25 +39,25 @@ We develop WRF-Flow, a conditional generative model that learns to map coarse-re
 \begin{figure}
 \centering
 
-%\includegraphics{figures/fig1}
+	\includegraphics[width=\textwidth]{figures/basemap.png}
 
 \caption{Reference map showing regions in Alaska where WRF-Flow was applied.}
 
 \label{fig1}
 
 \end{figure}
-
-To demonstrate its efficacy, we applied WRF-Flow to an area covering the  St. Elias and Chugach mountain ranges in southeastern Alaska (Figure~\ref{refmap}).  Beginning with WRF simulation outputs at 4 km horizontal resolution, we coarsened the out-of-sample data to simulate 64 km resolution climate model output, and paritioned the temporal domain into 120 time steps for training and 30+ independent time steps for evaluation.  We then used WRF-Flow to recreate, as best as possible, the original 4 km data in an evaluation timestep.  The dataset comprises maximum 3-day snowfall accumulations from multiple atmospheric forcings: CFSR reanalysis (1981–2010) for the historical baseline and GFDL CM3 and CCSM4 climate models (2031–2060) for future projections.  Initial results, which took only seconds to generate on a laptop computer, are shown in Figure~\ref{fig1}.
+%(Figure~\ref{refmap}).
+To demonstrate its efficacy, we applied WRF-Flow to an area covering the  St. Elias and Chugach mountain ranges in southeastern Alaska.  Beginning with WRF simulation outputs at 4 km horizontal resolution, we coarsened the out-of-sample data to simulate 64 km resolution climate model output, and paritioned the temporal domain into 120 time steps for training and 30+ independent time steps for evaluation.  We then used WRF-Flow to recreate, as best as possible, the original 4 km data in an evaluation timestep.  The dataset comprises maximum 3-day snowfall accumulations from multiple atmospheric forcings: CFSR reanalysis (1981–2010) for the historical baseline and GFDL CM3 and CCSM4 climate models (2031–2060) for future projections.  Initial results, which took only seconds to generate on a laptop computer, are shown in Figure~\ref{fig1}.
 
 \begin{figure}
 \centering
 
-\includegraphics{figures/fig1}
+\includegraphics{figures/wrf_flow_comparison.png}
 
-\caption{Results of WRF-Flow (Flow matching) pilot study on the evaluation portion of the data.  The hi-res WRF output (a) was coarsened to produce a low-res input for WRF-Flow (c). WRF-Flow combined the elevation map and low-res input to produce a high-res output (b), which compares favorably to the original (a).
+\caption{Results of WRF-Flow (Flow matching) pilot study on samples from the test set.  The hi-res WRF output (a--c) was coarsened to produce a low-res input for WRF-Flow (g--i). WRF-Flow combined the elevation map and low-res input to produce a high-res output (d--f), which compares favorably to the original (a).
 }
 
-\label{fig1}
+\label{fig2}
 
 \end{figure}
 
@@ -66,11 +66,11 @@ To demonstrate its efficacy, we applied WRF-Flow to an area covering the  St. El
 \begin{figure}
 \centering
 
-\includegraphics[width=\textwidth]{figures/fig2}
+\includegraphics[width=\textwidth]{figures/summary_statistics.png}
 
 \caption{Uncertainty quantification for the St. Elias mountain range, centered on Malaspina Glacier.   Deviations from the mean exhibit strong spatial coherence relative to topography, and orographic effects are clearly visible.}
 
-\label{fig2}
+\label{fig3}
 
 \end{figure}
 
@@ -78,18 +78,16 @@ By generating multiple independent realizations with different noise samples, we
 
 A key advantage of the generative approach is the ability to draw multiple independent samples from the learned conditional distribution. By sampling different realizations of the noise and integrating the learned velocity field with the same conditioning information, we generate an ensemble of precipitation realizations consistent with both the coarse climate forcing and the high-resolution topography.
 
-
-
 \section{Evaluation 1: Spatial Forecast Skill}
 
 \begin{figure}
 \centering
 
-\includegraphics[width=\textwidth]{figures/fig3}
+\includegraphics[width=\textwidth]{figures/crps.png}
 
 \caption{Overlays on hillshade-enhanced topography highlight the spatial coherence of predicted patterns relative to topographic forcing.}
 
-\label{fig3}
+\label{fig4}
 
 \end{figure}
 
@@ -101,11 +99,11 @@ To evaluate WRF-Flow, we compare it to the baseline bicubic lapse rate method, i
 \begin{figure}
 \centering
 
-\includegraphics[width=\textwidth]{figures/fig4}
+\includegraphics[width=\textwidth]{figures/psd.png}
 
 \caption{Log-log plot of Power Spectral Density for WRF-Flow and the baseline bicubic algorithm.  WRF-Flow shows a marked improvement over the baseline, with a little more challenge at high frequences.  This is consistent with most generative models, which tend to have an easier time learning smooth features.}
 
-\label{fig4}
+\label{fig5}
 
 \end{figure}
 
