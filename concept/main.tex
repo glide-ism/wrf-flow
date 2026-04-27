@@ -46,8 +46,15 @@ We develop WxFlow, a conditional generative model that learns to map coarse-reso
 \includegraphics[width=0.95\textwidth]{figures/basemap.png}
 \caption{Reference map showing regions in Alaska where WxFlow was applied.  Tiles correspond to columns in Fig.~\ref{fig2}.}
 \label{fig1}
+<<<<<<< HEAD
 \end{figure}
 To demonstrate its efficacy, we applied WxFlow to the regions of coastal Alaska shown in Fig.~\ref{fig1}.  Beginning with WRF simulation outputs at 4~km horizontal resolution \citep{lader2020}, we coarsened data to simulate 64~km resolution climate model output.  We partitioned the temporal domain into 120 time steps for training and 30+ independent time steps for evaluation.  We then used standard flow matching (Appendix~\ref{Sec:appendix}) to create a generative model of these high-resolution outputs conditioned on topography and low-resolution climate.  The velocity network has approximately 23M parameters and operates on $64\times64$ pixel tiles at 4~km resolution ($256\times256$~km).  The dataset comprises maximum 3-day snowfall accumulations from multiple atmospheric forcings: CFSR reanalysis (1981--2010) for the historical baseline and GFDL CM3 and CCSM4 climate models (2031--2060) for future projections.  Initial results, which took a few seconds to generate on a laptop computer with NVIDIA RTX4070, are shown in Figure~\ref{fig2}.
+=======
+
+%%%%%%%%%%%%%%%%%%%% TODO: Fill in "xxxxx" with short region descriptions.
+\end{figure}
+To demonstrate its efficacy, we applied WRF-Flow to three tiles in Alaska covering (a) The Malaspina Glacier and St. Elias Mountains; (b) xxxxx; (c) xxxxx (Figure~\ref{fig1}).  Beginning with WRF simulation outputs at 4 km horizontal resolution, we coarsened the out-of-sample data to simulate 64 km resolution climate model output, and partitioned the temporal domain into 120 time steps for training and 30+ independent time steps for evaluation.  We then used standard flow matching \ref{Sec:appendix} to create a generative model of these high-resolution outputs conditioned on topography and low-resolution climate.  The dataset comprises maximum 3-day snowfall accumulations from multiple atmospheric forcings: CFSR reanalysis (1981–2010) for the historical baseline and GFDL CM3 and CCSM4 climate models (2031–2060) for future projections.  Initial results, which took only seconds to generate on a laptop computer, are shown in Figure~\ref{fig2}.
+>>>>>>> 2c49dfa3ad393abb723b68ae83a11d3a5e50428b
 
 \begin{figure}
 \centering
@@ -72,7 +79,15 @@ To demonstrate its efficacy, we applied WxFlow to the regions of coastal Alaska 
 \end{figure}
 By generating multiple independent realizations with different noise samples, we obtain an ensemble that characterizes the conditional probability distribution over the downscaling problem (Figure~\ref{fig3}). The spatial pattern of ensemble spread provides diagnostic information about which regions have high predictability (low spread) and which regions have intrinsic unpredictability relative to the coarse forcing (high spread).  In particular, WxFlow produces spatially coherent samples in which precipitation anomalies on lee and stoss sides of mountain ridges are correlated across the ridge, reflecting physically plausible rain-shadow effects.  Ensembles can also be characterized by their summary statistics (Fig.~\ref{fig4}), which show that regions of extreme topography and precipitation have greater standard deviation than lower, flatter regions.
 
+<<<<<<< HEAD
 \section{Spatial Forecast Skill}
+=======
+
+By sampling different realizations of the noise and integrating the learned velocity field with the same conditioning information, we generate an ensemble of precipitation realizations consistent with both the coarse climate forcing and the high-resolution topography that can also be characterized by their summary statistics (Figure~\ref{fig4}), which show an expected pattern - regions of extreme topography and precipitation have greater uncertainty than lower, more predicable regions.
+
+\section{Evaluation 1: Spatial Forecast Skill}
+
+>>>>>>> 2c49dfa3ad393abb723b68ae83a11d3a5e50428b
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{figures/crps.png}
@@ -122,6 +137,7 @@ Conditional flow matching \citep{lipman2023} is a framework for training generat
 
 \subsection{Mathematical Framework}
 Given a high-resolution precipitation field $\mathbf{x}_1 \sim p_{\mbox{\tiny data}}$ and Gaussian noise $\mathbf{x}_0 \sim \mathcal{N}(0, \mathbf{I})$, the optimal transport probability path interpolates between these distributions:
+<<<<<<< HEAD
 $$\mathbf{x}_t = \sigma(t) \mathbf{x}_0 + \mu(t) \mathbf{x}_1$$
 where $\sigma(t)$ and $\mu(t)$ are smooth monotonic functions satisfying $\sigma(0)=1, \mu(0)=0$ and $\sigma(1)=0, \mu(1)=1$. The velocity field in probability space is then:
 $$\mathbf{v}(\mathbf{x}_t, t \mid \mathbf{c}) = \dot{\mu}(t) \mathbf{x}_1 - \dot{\sigma}(t) \mathbf{x}_0$$
@@ -131,6 +147,25 @@ where $\mathbf{c}$ denotes the conditioning information (coarse climate and topo
 \mathcal{L} = \mathbb{E}_{t, \mathbf{x}_1, \mathbf{x}_0, \mathbf{c}} \left\| \mathbf{v}_\theta(\mathbf{x}_t, t \mid \mathbf{c}) - \mathbf{v}(\mathbf{x}_t, t \mid \mathbf{c}) \right\|_2^2,
 \end{equation}
 which is masked to exclude pixels with missing precipitation data. This objective directly minimizes the distance between predicted and target velocity fields, providing a more stable optimization target than score matching used in diffusion models.
+=======
+
+    $$\mathbf{x}_t = \sigma(t) \mathbf{x}_0 + \mu(t) \mathbf{x}_1$$
+    
+\noindent where $\sigma(t)$ and $\mu(t)$ are smooth monotonic functions satisfying $\sigma(0)=1, \mu(0)=0$ and $\sigma(1)=0, \mu(1)=1$. The velocity field in probability space is then:
+
+    $$\mathbf{v}(\mathbf{x}_t, t \mid \mathbf{c}) = \dot{\mu}(t) \mathbf{x}_1 - \dot{\sigma}(t) \mathbf{x}_0$$
+    
+\noindent where $\mathbf{c}$ denotes the conditioning information (coarse climate and topography). To train the generative model, we parameterize the velocity field $\mathbf{v}_\theta(\mathbf{x}_t, t \mid \mathbf{c})$ via a neural network and minimize the mean squared velocity prediction error
+
+    $$\mathcal{L} = \mathbb{E}_{t, \mathbf{x}_1, \mathbf{x}_0, \mathbf{c}} \left\| \mathbf{v}_\theta(\mathbf{x}_t, t \mid \mathbf{c}) - \mathbf{v}(\mathbf{x}_t, t \mid \mathbf{c}) \right\|_2^2$$
+    
+which is masked to exclude pixels with missing precipitation data. This objective directly minimizes the distance between predicted and target velocity fields, providing a more stable optimization target than score matching used in diffusion models.
+
+
+
+
+
+>>>>>>> 2c49dfa3ad393abb723b68ae83a11d3a5e50428b
 
 % --------------------------------------
 \subsection{Architecture: Conditional U-Net with Self-Attention}
