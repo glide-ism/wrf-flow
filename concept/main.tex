@@ -23,7 +23,7 @@
 \affil[2]{International Arctic Research Center, University of Alaska}
 
 
-\title{WxFlow: Conditional Flow Matching for Probabilistic Precipitation Downscaling}
+\title{Conditional Flow Matching for Probabilistic Downscaling of Maximum 3-day Snowfall in Alaska}
 
 \begin{document}
 
@@ -44,7 +44,7 @@ We develop WxFlow, a conditional generative model that learns to map coarse-reso
 \begin{figure}
 \centering
 \includegraphics[width=0.95\textwidth]{figures/basemap.png}
-\caption{Reference map showing regions in Alaska where WxFlow was applied.  Tiles correspond to columns in Fig.~\ref{fig2}.}
+\caption{Reference map showing regions in Alaska where WxFlow was applied.  Tiles correspond to locations shown in Figs.~2--5}
 \label{fig1}
 \end{figure}
 To demonstrate its efficacy, we applied WxFlow to the regions of coastal Alaska shown in Fig.~\ref{fig1}.  Beginning with WRF simulation outputs at 4~km horizontal resolution \citep{lader2020}, we coarsened data to simulate 64~km resolution climate model output.  We partitioned the temporal domain into 120 time steps for training and 30+ independent time steps for evaluation.  We then used standard flow matching (Appendix~\ref{Sec:appendix}) to create a generative model of these high-resolution outputs conditioned on topography and low-resolution climate.  The velocity network has approximately 23M parameters and operates on $64\times64$ pixel tiles at 4~km resolution ($256\times256$~km).  The dataset comprises maximum 3-day snowfall accumulations from multiple atmospheric forcings: CFSR reanalysis (1981--2010) for the historical baseline and GFDL CM3 and CCSM4 climate models (2031--2060) for future projections.  Initial results, which took a few seconds to generate on a laptop computer with NVIDIA RTX4070, are shown in Figure~\ref{fig2}.
@@ -52,7 +52,7 @@ To demonstrate its efficacy, we applied WxFlow to the regions of coastal Alaska 
 \begin{figure}
 \centering
 \includegraphics{figures/wrf_flow_comparison.png}
-\caption{Results of WxFlow pilot study on samples from the test set.  The hi-res WRF output (a--c) was coarsened to produce a low-res input for WxFlow (g--i). WxFlow combined the elevation map and low-res input to produce a high-res output (d--f), which compares favorably to the original (a--c).}
+\caption{Samples drawn from the CFM-based distribution of 3 day maximum snowfall.  The hi-res WRF output (a--c) was coarsened to produce a low-res input for WxFlow (g--i). WxFlow combined the elevation map and low-res input to produce a high-res output (d--f), which shares many qualitative and spectral properties with the physics model.}
 \label{fig2}
 \end{figure}
 
@@ -61,13 +61,13 @@ To demonstrate its efficacy, we applied WxFlow to the regions of coastal Alaska 
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{figures/spatial_coherence.png}
-\caption{Samples drawn from WxFlow with ensemble mean removed, centered on Malaspina Glacier (a--c) alongside the low-resolution forcing and ensemble mean.  Deviations from the mean are spatially coherent, reflecting topographic effects such as rain-shadowing and orographic enhancement.}
+	\caption{Samples drawn from WxFlow for tile B (Malaspina Glacier area) with ensemble mean removedr (a--c) alongside the low-resolution forcing (d) and ensemble mean (e).  Deviations from the mean are spatially coherent, reflecting topographic effects such as rain-shadowing and orographic enhancement.}
 \label{fig3}
 \end{figure}
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{figures/summary_statistics.png}
-\caption{Uncertainty quantification for the St.\ Elias mountain range as quantified by sample standard deviation, centered on Malaspina Glacier.}
+	\caption{Uncertainty quantification for the St.\ Elias mountain range as quantified by sample standard deviation, centered on tile B (Malaspina Glacier).}
 \label{fig4}
 \end{figure}
 By generating multiple independent realizations with different noise samples, we obtain an ensemble that characterizes the conditional probability distribution over the downscaling problem (Figure~\ref{fig3}). The spatial pattern of ensemble spread provides diagnostic information about which regions have high predictability (low spread) and which regions have intrinsic unpredictability relative to the coarse forcing (high spread).  In particular, WxFlow produces spatially coherent samples in which precipitation anomalies on lee and stoss sides of mountain ridges are correlated across the ridge, reflecting physically plausible rain-shadow effects.  Ensembles can also be characterized by their summary statistics (Fig.~\ref{fig4}), which show that regions of extreme topography and precipitation have greater standard deviation than lower, flatter regions.
@@ -76,7 +76,7 @@ By generating multiple independent realizations with different noise samples, we
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{figures/crps.png}
-\caption{CRPS computed with WxFlow and the lapse-rate corrected bicubic baseline method over 5 random tiles drawn from the test set, alongside the WRF ground truth, ensemble mean, and baseline mean.  Fields are overlaid on high-resolution topography.  WxFlow exhibits much stronger performance than the baseline, particularly over high-relief regions.}
+	\caption{CRPS computed with WxFlow (a, f, k) and the lapse-rate corrected bicubic baseline method (b, g, l) over Tiles a--c in Fig.~\ref{fig1} drawn from the test set, alongside the WRF ground truth (c, h, m), ensemble mean (d, i, n), and baseline mean (e, j, o).  Fields are overlaid on high-resolution topography.  WxFlow exhibits better performance than the baseline with respect to CRPS, particularly over high-relief regions.}
 \label{fig5}
 \end{figure}
 
